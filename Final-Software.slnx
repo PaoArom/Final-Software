@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Final.Logic/Final.Logic.csproj" />
+  <Project Path="Final.Tests/Final.Tests.csproj" />
+</Solution>
