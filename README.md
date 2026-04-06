@@ -15,5 +15,6 @@ Core features:
     - The game will have a tutorial level that teacher the player how the mechanics work.
 
 Team Members:
+
     - Mathias Granja
     - Paola Mora
