@@ -1,4 +1,6 @@
 <Solution>
+  <Project Path="Final.Data/Final.Data.csproj" />
   <Project Path="Final.Logic/Final.Logic.csproj" />
   <Project Path="Final.Tests/Final.Tests.csproj" />
+  <Project Path="Final.UI/Final.UI.csproj" />
 </Solution>
