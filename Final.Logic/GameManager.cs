@@ -1,6 +1,6 @@
 ﻿namespace Final.Logic;
 
-public class Class1
+public class GameManager
 {
 
 }
