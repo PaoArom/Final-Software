@@ -1,6 +1,6 @@
 ﻿namespace Final.UI;
 
-public class Class1
+public class MenuDisplay
 {
 
 }
