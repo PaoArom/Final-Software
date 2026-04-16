@@ -19,14 +19,13 @@ public class InputHandler
             _input = Console.ReadLine() ?? string.Empty;
             _isValid = ValidateInput(_input);
 
-            if (!_isValid)
+            if (_isValid)
             {
-                break;
+                return _input;
             }
-            
+
             DisplayError();
         }
-        return _input;
     }
 
     public void DisplayError()
