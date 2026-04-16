@@ -33,6 +33,7 @@ public class MenuDisplay
                 case "2":
                     break;
                 case "3":
+                    Console.Clear();
                     System.Console.WriteLine("Exiting the game...");
                     inMenu = false;
                     break;
