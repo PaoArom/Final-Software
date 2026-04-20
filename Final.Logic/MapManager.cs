@@ -1,78 +1,132 @@
-namespace Final.Logic;
-
-public class MapManager
+namespace Final.Logic
 {
-
-    //la task 4 xd
-
-    private int rows;
-        private int columns;
-        private bool[,] walkableCells;   
+    public class MapManager
+    {
+        //Task 4
+        private int numRows;
+        private int numCols;
+        private bool[,] canWalkHere;
+        private string[,] whatGoesHere;
         private int playerRow;
         private int playerCol;
 
-        public MapManager(int rows, int columns, int startRow, int startCol)
+        private const string FIRE     = "🔥";
+        private const string NOTHING  = "  ";
+        private const string BALLIE   = "🟢";
+        private const string BADSTUFF = "❌";
+
+        public MapManager(int numRows, int numCols, int startRow, int startCol)
         {
-            this.rows    = rows;
-            this.columns = columns;
+            this.numRows = numRows;
+            this.numCols = numCols;
 
-            walkableCells = new bool[rows, columns];
+            canWalkHere  = new bool[numRows, numCols];
+            whatGoesHere = new string[numRows, numCols];
 
-            
-            for (int r = 0; r < rows; r++)
-                for (int c = 0; c < columns; c++)
-                    walkableCells[r, c] = true;
+            for (int r = 0; r < numRows; r++)
+                for (int c = 0; c < numCols; c++)
+                {
+                    canWalkHere[r, c]  = true;
+                    whatGoesHere[r, c] = NOTHING;
+                }
 
             playerRow = startRow;
             playerCol = startCol;
+
+            BuildTheMap();
         }
 
-        // para que si queremos poner un obtsaculo o algo se pueda luego uwu
-        public void SetWalkable(int row, int col, bool walkable)
+        // Mapa xd
+        private void BuildTheMap()
         {
-            if (IsInBounds(row, col))
-                walkableCells[row, col] = walkable;
+            SlapAWallHere(1, 9, 8, 9);
+            SlapAWallHere(11, 9, 18, 9);
+            SlapAWallHere(7, 1, 7, 8);
+            SlapAWallHere(7, 10, 7, 18);
+            SlapAWallHere(13, 1, 13, 8);
+            SlapAWallHere(13, 10, 13, 18);
+
+            // Top left room
+            PlonkAThing(3, 3); PlonkAThing(3, 4);
+            PlonkAThing(5, 6); PlonkAThing(4, 2);
+
+            // Top right room
+            PlonkAThing(3, 12); PlonkAThing(3, 15);
+            PlonkAThing(5, 13); PlonkAThing(4, 17);
+
+            // Bottom left room
+            PlonkAThing(15, 3); PlonkAThing(16, 5);
+            PlonkAThing(17, 2); PlonkAThing(15, 7);
+
+            // Bottom right room
+            PlonkAThing(15, 12); PlonkAThing(16, 15);
+            PlonkAThing(17, 17); PlonkAThing(15, 16);
+
+            // Middle zone
+            PlonkAThing(9, 4);  PlonkAThing(9, 14);
+            PlonkAThing(10, 4); PlonkAThing(10, 14);
         }
 
-        // Task 7 
+        private void SlapAWallHere(int r1, int c1, int r2, int c2)
+        {
+            for (int r = r1; r <= r2; r++)
+                for (int c = c1; c <= c2; c++)
+                {
+                    canWalkHere[r, c]  = false;
+                    whatGoesHere[r, c] = FIRE;
+                }
+        }
+
+        private void PlonkAThing(int row, int col)
+        {
+            canWalkHere[row, col]  = false;
+            whatGoesHere[row, col] = BADSTUFF;
+        }
+
+        public void ToggleWalkable(int row, int col, bool yesOrNo)
+        {
+            if (StillOnTheMap(row, col))
+                canWalkHere[row, col] = yesOrNo;
+        }
+
         public (int row, int col) GetCurrentPosition()
         {
             return (playerRow, playerCol);
         }
 
-        //  Task 6
+        //Task 6
         public List<string> GetAvailableMoves()
         {
-            var moves = new List<string>();
+            var goThisWay = new List<string>();
 
-            if (CanMoveTo(playerRow - 1, playerCol)) moves.Add("Up");
-            if (CanMoveTo(playerRow + 1, playerCol)) moves.Add("Down");
-            if (CanMoveTo(playerRow, playerCol - 1)) moves.Add("Left");
-            if (CanMoveTo(playerRow, playerCol + 1)) moves.Add("Right");
+            if (OkayToGoHere(playerRow - 1, playerCol)) goThisWay.Add("W");
+            if (OkayToGoHere(playerRow + 1, playerCol)) goThisWay.Add("S");
+            if (OkayToGoHere(playerRow, playerCol - 1)) goThisWay.Add("A");
+            if (OkayToGoHere(playerRow, playerCol + 1)) goThisWay.Add("D");
 
-            return moves;
+            return goThisWay;
         }
 
-        //  Task 5
-        public bool MovePlayer(string direction)
+        //Task 5
+        public bool MovePlayer(string key)
         {
             int newRow = playerRow;
             int newCol = playerCol;
 
-            switch (direction.ToLower())
+            switch (key.ToUpper())
             {
-                case "up":    newRow--; break;
-                case "down":  newRow++; break;
-                case "left":  newCol--; break;
-                case "right": newCol++; break;
+                case "W": newRow--; break;
+                case "S": newRow++; break;
+                case "A": newCol--; break;
+                case "D": newCol++; break;
                 default:
-                    Console.WriteLine($"Dirección inválida: {direction}");
+                    Console.WriteLine($"That key does nothing: {key}");
                     return false;
             }
 
-            if (!CanMoveTo(newRow, newCol))
+            if (!OkayToGoHere(newRow, newCol))
             {
-                Console.WriteLine("No puedes moverte en esa dirección.");
+                Console.WriteLine("Something's in the way, can't go there.");
                 return false;
             }
 
@@ -81,41 +135,35 @@ public class MapManager
             return true;
         }
 
-        
-        private bool IsInBounds(int row, int col)
-        {
-            return row >= 0 && row < rows && col >= 0 && col < columns;
-        }
-
-        private bool CanMoveTo(int row, int col)
-        {
-            return IsInBounds(row, col) && walkableCells[row, col];
-        }
-
+        // DisplayMap
         public void DisplayMap()
-{
-    string wall   = "🟫";
-    string floor  = "  "; 
-    string player = "🟢";
-
-    for (int r = 0; r < rows; r++)
-    {
-        for (int c = 0; c < columns; c++)
         {
-            bool isBorder = (r == 0 || r == rows - 1 || c == 0 || c == columns - 1);
-            bool isPlayer = (r == playerRow && c == playerCol);
+            for (int r = 0; r < numRows; r++)
+            {
+                for (int c = 0; c < numCols; c++)
+                {
+                    bool itsBorder = (r == 0 || r == numRows - 1 || c == 0 || c == numCols - 1);
+                    bool itsPlayer = (r == playerRow && c == playerCol);
 
-            if (isBorder)
-                Console.Write(wall);
-            else if (isPlayer)
-                Console.Write(player);
-            else
-                Console.Write(floor);
+                    if (itsPlayer)
+                        Console.Write(BALLIE);
+                    else if (itsBorder)
+                        Console.Write(FIRE);
+                    else
+                        Console.Write(whatGoesHere[r, c]);
+                }
+                Console.WriteLine();
+            }
         }
-        Console.WriteLine();
+
+        private bool StillOnTheMap(int row, int col)
+        {
+            return row >= 0 && row < numRows && col >= 0 && col < numCols;
+        }
+
+        private bool OkayToGoHere(int row, int col)
+        {
+            return StillOnTheMap(row, col) && canWalkHere[row, col];
+        }
     }
 }
-
-
-    }
-
