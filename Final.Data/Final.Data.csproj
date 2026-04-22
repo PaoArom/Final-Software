@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Final.Logic\Final.Logic.csproj" />
+  </ItemGroup>
+
 </Project>
