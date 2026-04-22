@@ -50,6 +50,7 @@ public class MenuDisplay
                     Pause();
                     break;
                 case "2":
+                    LanguageMenu();
                     break;
                 case "3":
                     Console.Clear();
