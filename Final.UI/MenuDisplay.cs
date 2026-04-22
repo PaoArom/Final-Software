@@ -5,67 +5,16 @@ using Final.Data;
 public class MenuDisplay
 {
     private readonly InputHandler _inputHandler;
-    private readonly SaveSystem _saveSystem;
-    private Player? _currentPlayer;
     private string _selectedLanguage = "English";
 
     public MenuDisplay()
     {
         _inputHandler = new InputHandler();
-        _saveSystem = new SaveSystem();
     }
 
-    public Player? GetCurrentPlayer()
-    {
-        return _currentPlayer;
-    }
-    public void MainMenu()
-    {
-        LoginScreen();
+    public string SelectedLanguage => _selectedLanguage;
 
-        bool inMenu = true;
-
-        while (inMenu)
-        {
-            Console.Clear();
-            System.Console.WriteLine("==========================");
-            System.Console.WriteLine("Escape Room Game");
-            System.Console.WriteLine("==========================");
-            System.Console.WriteLine("Welcome, " + _currentPlayer?.Username + "!");
-            System.Console.WriteLine("Level: " + _currentPlayer?.CurrentLevel);
-            System.Console.WriteLine("==========================");
-            System.Console.WriteLine("1. Play");
-            System.Console.WriteLine("2. Language");
-            System.Console.WriteLine("3. Exit");
-            System.Console.WriteLine("==========================");
-            System.Console.WriteLine("Please select an option:");
-
-            string input = _inputHandler.ReadInput();
-
-            switch (input)
-            {
-                case "1":
-                    Console.Clear();
-                    System.Console.WriteLine("Starting the game...");
-                    Pause();
-                    break;
-                case "2":
-                    LanguageMenu();
-                    break;
-                case "3":
-                    Console.Clear();
-                    System.Console.WriteLine("Exiting the game...");
-                    inMenu = false;
-                    break;
-                default:
-                    _inputHandler.DisplayError();
-                    Pause();
-                    break;
-            }
-        }
-    }
-
-    public void LoginScreen()
+    public string LoginScreen()
     {
         Console.Clear();
         System.Console.WriteLine("==========================");
@@ -81,25 +30,29 @@ public class MenuDisplay
             username = _inputHandler.ReadInput();
         }
 
-        Player? existingPlayer = _saveSystem.LoadGame(username);
-
-        if(existingPlayer != null)
-        {
-            _currentPlayer = existingPlayer;
-            System.Console.WriteLine("Welcome back, " + _currentPlayer.Username + "!");
-            System.Console.WriteLine("Current level: " + _currentPlayer.CurrentLevel);
-        }
-        else
-        {
-            _currentPlayer = new Player(username);
-            _saveSystem.SaveGame(_currentPlayer);
-            System.Console.WriteLine("New player created: " + _currentPlayer.Username);
-        }
-
-        Pause();
+        return username.Trim();
     }
 
-    public void LanguageMenu()
+    public string ShowMainMenu(Player currentPlayer)
+    {
+        Console.Clear();
+        System.Console.WriteLine("==========================");
+        System.Console.WriteLine("Escape Room Game");
+        System.Console.WriteLine("==========================");
+        System.Console.WriteLine("Welcome, " + currentPlayer.Username + "!");
+        System.Console.WriteLine("Level: " + currentPlayer.CurrentLevel);
+        System.Console.WriteLine("Language: " + _selectedLanguage);
+        System.Console.WriteLine("==========================");
+        System.Console.WriteLine("1. Play");
+        System.Console.WriteLine("2. Language");
+        System.Console.WriteLine("3. Exit");
+        System.Console.WriteLine("==========================");
+        System.Console.WriteLine("Please select an option:");
+
+        return _inputHandler.ReadInput();
+    }
+
+    public string ShowLanguageMenu()
     {
         Console.Clear();
         System.Console.WriteLine("==========================");
@@ -123,14 +76,20 @@ public class MenuDisplay
             default:
                 _inputHandler.DisplayError();
                 Pause();
-                return;
+                return _selectedLanguage;
         }
 
         System.Console.WriteLine("Language set to: " + _selectedLanguage);
         Pause();
+        return _selectedLanguage;
     }
 
-    private void Pause()
+    public void DisplayError()
+    {
+        _inputHandler.DisplayError();
+    }
+
+    public void Pause()
     {
         System.Console.WriteLine("Press any key to continue...");
         Console.ReadKey();
