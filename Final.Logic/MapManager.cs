@@ -25,7 +25,7 @@ namespace Final.Logic
         public bool DidLose() => levelLost;
         public bool HasKey() => hasKey;
 
-        public MapManager(int numRows, int numCols, int startRow, int startCol)
+        public MapManager(int numRows, int numCols, int startRow, int startCol, bool isTutorial = false)
         {
             this.numRows = numRows;
             this.numCols = numCols;
@@ -43,15 +43,16 @@ namespace Final.Logic
             playerRow = startRow;
             playerCol = startCol;
 
-            BuildTheMap();
+            if (!isTutorial)
+                BuildTheMap();
         }
 
         // Mapa xd
         private void BuildTheMap()
         {
             // Llave 
-            whatGoesHere[4, 5] = KEY;
-            canWalkHere[4, 5] = true;
+            whatGoesHere[17, 3] = KEY;
+            canWalkHere[17, 3] = true;
             // Paredes verticales con puertas
             WallHere(1, 9, 5, 9);
             WallHere(9, 9, 18, 9);
@@ -90,6 +91,13 @@ namespace Final.Logic
             // Salida en esquina abajo derecha
             whatGoesHere[18, 18] = EXIT;
             canWalkHere[18, 18] = true;
+        }
+
+        public void TutorialObject(int row, int col, string emoji, bool lethal)
+        {
+            if (!StillOnTheMap(row, col)) return;
+            whatGoesHere[row, col] = emoji;
+            canWalkHere[row, col] = true;
         }
 
         private void WallHere(int r1, int c1, int r2, int c2)
