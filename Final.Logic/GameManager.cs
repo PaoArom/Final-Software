@@ -5,6 +5,7 @@ public class GameManager
     public void StartGame()
     {
         var map = new MapManager(20, 20, 1, 1);
+        var inventory = new InventoryManager();
 
         bool playing = true;
 
@@ -12,8 +13,14 @@ public class GameManager
         {
             Console.Clear();
             map.DisplayMap();
-            System.Console.WriteLine();
-            System.Console.WriteLine("Use W/A/S/D to move. Press Q to return to the menu.");
+            Console.WriteLine();
+
+            if (map.HasKey())
+                Console.WriteLine("  🗝️  You have the key");
+            else
+                Console.WriteLine("  🔍 Find the key to open the exit");
+
+            Console.WriteLine("  Use WASD to move  E for Inventory  Q for Menu");
 
             var keyInfo = Console.ReadKey(true);
             string key = keyInfo.Key.ToString().ToUpper();
@@ -24,35 +31,95 @@ public class GameManager
                 continue;
             }
 
+            if (key == "E")
+            {
+                if (map.HasKey() && !inventory.HasItem("🗝️  Key"))
+                    inventory.PickUpItem("🗝️  Key");
+
+                inventory.ShowInventory();
+                continue;
+            }
+
             if (key is "W" or "A" or "S" or "D")
             {
                 map.MovePlayer(key);
 
                 if (map.DidLose())
                 {
-                    Console.Clear();
-                    map.DisplayMap();
-                    System.Console.WriteLine("\n🔥 You touched fire and died");
-                    System.Console.WriteLine("Press any key to return to the menu...");
-                    Console.ReadKey(true);
+                    ShowGameOver();
                     playing = false;
                 }
                 else if (map.DidWin())
                 {
-                    Console.Clear();
-                    map.DisplayMap();
-                    System.Console.WriteLine("\n🚪 You found the exit! You win 🎉");
-                    System.Console.WriteLine("Press any key to return to the menu...");
-                    Console.ReadKey(true);
+                    ShowLevelCleared();
                     playing = false;
                 }
             }
-            else
+            else if (key != "E" && key != "Q")
             {
-                System.Console.WriteLine("Invalid key. Use W/A/S/D or Q.");
-                System.Console.WriteLine("Press any key to continue...");
+                Console.WriteLine("Invalid key Use WASD, E or Q.");
+                Console.WriteLine("Press any key to continue...");
                 Console.ReadKey(true);
             }
         }
+    }
+    private void ShowGameOver()
+    {
+        Console.Clear();
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine();
+        Console.WriteLine("  ╔══════════════════════════════════════╗");
+        Console.WriteLine("  ║                                      ║");
+        Console.WriteLine("  ║   ██████╗  █████╗ ███╗   ███╗███████╗║");
+        Console.WriteLine("  ║  ██╔════╝ ██╔══██╗████╗ ████║██╔════╝║");
+        Console.WriteLine("  ║  ██║  ███╗███████║██╔████╔██║█████╗  ║");
+        Console.WriteLine("  ║  ██║   ██║██╔══██║██║╚██╔╝██║██╔══╝  ║");
+        Console.WriteLine("  ║  ╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗║");
+        Console.WriteLine("  ║   ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝║");
+        Console.WriteLine("  ║                                      ║");
+        Console.WriteLine("  ║   ██████╗ ██╗   ██╗███████╗██████╗  ║");
+        Console.WriteLine("  ║  ██╔═══██╗██║   ██║██╔════╝██╔══██╗ ║");
+        Console.WriteLine("  ║  ██║   ██║██║   ██║█████╗  ██████╔╝ ║");
+        Console.WriteLine("  ║  ██║   ██║╚██╗ ██╔╝██╔══╝  ██╔══██╗ ║");
+        Console.WriteLine("  ║  ╚██████╔╝ ╚████╔╝ ███████╗██║  ██║ ║");
+        Console.WriteLine("  ║   ╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝ ║");
+        Console.WriteLine("  ║                                      ║");
+        Console.WriteLine("  ║         🔥 You touched fire! 🔥        ║");
+        Console.WriteLine("  ║                                      ║");
+        Console.WriteLine("  ╚══════════════════════════════════════╝");
+        Console.WriteLine();
+        Console.ResetColor();
+        Console.WriteLine("          Press any key to return to the menu...");
+        Console.ReadKey(true);
+    }
+
+    private void ShowLevelCleared()
+    {
+        Console.Clear();
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine();
+        Console.WriteLine("  ╔══════════════════════════════════════════╗");
+        Console.WriteLine("  ║                                          ║");
+        Console.WriteLine("  ║  ██╗     ███████╗██╗   ██╗███████╗██╗   ║");
+        Console.WriteLine("  ║  ██║     ██╔════╝██║   ██║██╔════╝██║   ║");
+        Console.WriteLine("  ║  ██║     █████╗  ██║   ██║█████╗  ██║   ║");
+        Console.WriteLine("  ║  ██║     ██╔══╝  ╚██╗ ██╔╝██╔══╝  ██║   ║");
+        Console.WriteLine("  ║  ███████╗███████╗ ╚████╔╝ ███████╗███████╗║");
+        Console.WriteLine("  ║  ╚══════╝╚══════╝  ╚═══╝  ╚══════╝╚══════╝║");
+        Console.WriteLine("  ║                                          ║");
+        Console.WriteLine("  ║   ██████╗██╗     ███████╗ █████╗ ██████╗ ║");
+        Console.WriteLine("  ║  ██╔════╝██║     ██╔════╝██╔══██╗██╔══██╗║");
+        Console.WriteLine("  ║  ██║     ██║     █████╗  ███████║██████╔╝║");
+        Console.WriteLine("  ║  ██║     ██║     ██╔══╝  ██╔══██║██╔══██╗║");
+        Console.WriteLine("  ║  ╚██████╗███████╗███████╗██║  ██║██║  ██║║");
+        Console.WriteLine("  ║   ╚═════╝╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝║");
+        Console.WriteLine("  ║                                          ║");
+        Console.WriteLine("  ║       🚪 You found the exit! 🎉           ║");
+        Console.WriteLine("  ║                                          ║");
+        Console.WriteLine("  ╚══════════════════════════════════════════╝");
+        Console.WriteLine();
+        Console.ResetColor();
+        Console.WriteLine("          Press any key to return to the menu...");
+        Console.ReadKey(true);
     }
 }

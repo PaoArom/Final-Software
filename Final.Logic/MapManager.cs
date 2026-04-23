@@ -10,30 +10,33 @@ namespace Final.Logic
         private int playerRow;
         private int playerCol;
 
-        private const string WALL    = "⬛";
+        private const string WALL = "⬛";
         private const string NOTHING = "  ";
-        private const string BALLIE  = "🟢";
-        private const string FIRE    = "🔥";
-        private const string EXIT    = "🚪";
+        private const string BALLIE = "🟢";
+        private const string FIRE = "🔥";
+        private const string EXIT = "🚪";
+        private const string KEY = "🗝️";
 
-        private bool levelWon  = false;
+        private bool levelWon = false;
         private bool levelLost = false;
+        private bool hasKey = false;
 
-        public bool DidWin()  => levelWon;
+        public bool DidWin() => levelWon;
         public bool DidLose() => levelLost;
+        public bool HasKey() => hasKey;
 
         public MapManager(int numRows, int numCols, int startRow, int startCol)
         {
             this.numRows = numRows;
             this.numCols = numCols;
 
-            canWalkHere  = new bool[numRows, numCols];
+            canWalkHere = new bool[numRows, numCols];
             whatGoesHere = new string[numRows, numCols];
 
             for (int r = 0; r < numRows; r++)
                 for (int c = 0; c < numCols; c++)
                 {
-                    canWalkHere[r, c]  = true;
+                    canWalkHere[r, c] = true;
                     whatGoesHere[r, c] = NOTHING;
                 }
 
@@ -46,44 +49,47 @@ namespace Final.Logic
         // Mapa xd
         private void BuildTheMap()
         {
+            // Llave 
+            whatGoesHere[4, 5] = KEY;
+            canWalkHere[4, 5] = true;
             // Paredes verticales con puertas
-            WallHere(1, 9, 5, 9);   // puerta al final (filas 6,7,8 abiertas)
-            WallHere(9, 9, 18, 9);  // puerta al inicio (fila 8 abierta)
+            WallHere(1, 9, 5, 9);
+            WallHere(9, 9, 18, 9);
 
-            // Paredes horizontales con puertas variadas
-            WallHere(7, 1, 7, 4);   // puerta al final (cols 5,6 abiertos)
+            // Paredes horizontales con puertas 
+            WallHere(7, 1, 7, 4);
             WallHere(7, 6, 7, 9);
-            WallHere(7, 10, 7, 13); // puerta en el centro (cols 14,15 abiertos)
+            WallHere(7, 10, 7, 13);
             WallHere(7, 16, 7, 18);
 
-            WallHere(13, 1, 13, 3); // puerta al inicio (cols 4,5 abiertos)
+            WallHere(13, 1, 13, 3);
             WallHere(13, 6, 13, 9);
-            WallHere(13, 10, 13, 14); // puerta al final (cols 15,16 abiertos)
+            WallHere(13, 10, 13, 14);
             WallHere(13, 17, 13, 18);
 
-            // Fuego en habitación superior izquierda
+            // Fuego en habitación arriba izquierda
             ObjectHere(3, 3); ObjectHere(3, 4);
             ObjectHere(5, 6); ObjectHere(4, 2);
 
-            // Fuego en habitación superior derecha
+            // Fuego en habitación arriba derecha
             ObjectHere(3, 12); ObjectHere(3, 15);
             ObjectHere(5, 13); ObjectHere(4, 17);
 
-            // Fuego en habitación inferior izquierda
+            // Fuego en habitación abajo izquierda
             ObjectHere(15, 3); ObjectHere(16, 5);
             ObjectHere(17, 2); ObjectHere(15, 7);
 
-            // Fuego en habitación inferior derecha
+            // Fuego en habitación abajo derecha
             ObjectHere(15, 12); ObjectHere(16, 15);
             ObjectHere(17, 17); ObjectHere(15, 16);
 
             // Fuego en zona central
-            ObjectHere(9, 4);  ObjectHere(9, 14);
+            ObjectHere(9, 4); ObjectHere(9, 14);
             ObjectHere(10, 4); ObjectHere(10, 14);
 
-            // Salida en esquina inferior derecha
+            // Salida en esquina abajo derecha
             whatGoesHere[18, 18] = EXIT;
-            canWalkHere[18, 18]  = true;
+            canWalkHere[18, 18] = true;
         }
 
         private void WallHere(int r1, int c1, int r2, int c2)
@@ -91,14 +97,14 @@ namespace Final.Logic
             for (int r = r1; r <= r2; r++)
                 for (int c = c1; c <= c2; c++)
                 {
-                    canWalkHere[r, c]  = false;
+                    canWalkHere[r, c] = false;
                     whatGoesHere[r, c] = WALL;
                 }
         }
 
         private void ObjectHere(int row, int col)
         {
-            canWalkHere[row, col]  = true; // el jugador puede entrar pero muere
+            canWalkHere[row, col] = true;
             whatGoesHere[row, col] = FIRE;
         }
 
@@ -153,6 +159,13 @@ namespace Final.Logic
             playerRow = newRow;
             playerCol = newCol;
 
+            // Chequear si recogió la llave
+            if (whatGoesHere[playerRow, playerCol] == KEY)
+            {
+                hasKey = true;
+                whatGoesHere[playerRow, playerCol] = NOTHING;
+            }
+
             // Chequear si pisó fuego
             if (whatGoesHere[playerRow, playerCol] == FIRE)
             {
@@ -163,8 +176,15 @@ namespace Final.Logic
             // Chequear si llegó a la salida
             if (whatGoesHere[playerRow, playerCol] == EXIT)
             {
-                levelWon = true;
-                Console.WriteLine("\n🚪 You found the exit! You win! 🎉");
+                if (hasKey)
+                {
+                    levelWon = true;
+                    Console.WriteLine("\n🚪 You found the exit! You win 🎉");
+                }
+                else
+                {
+                    Console.WriteLine("You need a key to open this door");
+                }
             }
 
             return true;
