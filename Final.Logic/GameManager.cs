@@ -27,7 +27,7 @@ public class GameManager
             Console.ReadKey(true);
         }
     }
-    public void StartGame()
+    public int StartGame()
 {
     var map       = new MapManager(20, 20, 1, 1);
     var inventory = new InventoryManager();
