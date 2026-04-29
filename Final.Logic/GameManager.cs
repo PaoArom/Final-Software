@@ -28,93 +28,91 @@ public class GameManager
         }
     }
     public int StartGame()
-{
-    var map       = new MapManager(20, 20, 1, 1);
-    var inventory = new InventoryManager();
-
-    bool playing        = true;
-    DateTime startTime  = DateTime.Now;
-    int totalSeconds    = 60; // un minuto
-    bool keyCollected = false;
-
-    while (playing)
     {
-        // Calcular tiempo restante
-        int secondsLeft = totalSeconds - (int)(DateTime.Now - startTime).TotalSeconds;
+        var map = new MapManager(20, 20, 1, 1);
+        var inventory = new InventoryManager();
 
-        if (secondsLeft <= 0)
+        bool playing = true;
+        DateTime startTime = DateTime.Now;
+        int totalSeconds = 60; // un minuto
+        bool playerWon = false;
+        bool keyCollected = false;
+
+        while (playing)
         {
-            ShowGameOver();
-            playing = false;
-            continue;
-        }
+            // Calcular tiempo restante
+            int secondsLeft = totalSeconds - (int)(DateTime.Now - startTime).TotalSeconds;
 
-        int minsLeft = secondsLeft / 60;
-        int secsLeft = secondsLeft % 60;
+            if (secondsLeft <= 0)
+            {
+                ShowGameOver();
+                playing = false;
+                continue;
+            }
 
-        Console.Clear();
-        map.DisplayMap();
-        Console.WriteLine();
+            int minsLeft = secondsLeft / 60;
+            int secsLeft = secondsLeft % 60;
 
-        // Timer con color que cambia según el tiempo
-        if (secondsLeft <= 10)
-            Console.ForegroundColor = ConsoleColor.Red;
-        else if (secondsLeft <= 30)
-            Console.ForegroundColor = ConsoleColor.Yellow;
-        else
-            Console.ForegroundColor = ConsoleColor.Green;
+            Console.SetCursorPosition(0, 0);
+            map.DisplayMap();
+            Console.WriteLine();
 
-        Console.WriteLine($"  ⏱️  Time left: {minsLeft:D2}:{secsLeft:D2}");
-        Console.ResetColor();
+            // Timer con color que cambia según el tiempo
+            if (secondsLeft <= 10)
+                Console.ForegroundColor = ConsoleColor.Red;
+            else if (secondsLeft <= 30)
+                Console.ForegroundColor = ConsoleColor.Yellow;
+            else
+                Console.ForegroundColor = ConsoleColor.Green;
 
-        if (map.HasKey())
-            Console.WriteLine("  🗝️  You have the key!");
-        else
-            Console.WriteLine("  🔍 Find the key to open the exit!");
+            Console.WriteLine($"  ⏱️  Time left: {minsLeft:D2}:{secsLeft:D2}");
+            Console.ResetColor();
 
-        Console.WriteLine("  Use W/A/S/D to move | E = Inventory | Q = Menu");
+            if (map.HasKey())
+                Console.WriteLine("  🗝️  You have the key!");
+            else
+                Console.WriteLine("  🔍 Find the key to open the exit!");
 
-        // Esperar tecla con timeout de 1 segundo
-        if (!Console.KeyAvailable)
-        {
-            System.Threading.Thread.Sleep(100);
-            continue;
-        }
+            Console.WriteLine("  Use W/A/S/D to move | E = Inventory | Q = Menu");
 
-        var keyInfo = Console.ReadKey(true);
-        string key  = keyInfo.Key.ToString().ToUpper();
+            // Esperar tecla con timeout de 1 segundo
+            if (!Console.KeyAvailable)
+            {
+                System.Threading.Thread.Sleep(100);
+                continue;
+            }
 
-        if (key == "Q")
-        {
-            playing = false;
-            continue;
-        }
+            var keyInfo = Console.ReadKey(true);
+            string key = keyInfo.Key.ToString().ToUpper();
 
-        if (key == "E")
-        {
-            if (map.HasKey() && !inventory.HasItem("🗝️  Old Key"))
-                inventory.PickUpItem("🗝️  Old Key");
+            if (key == "Q")
+            {
+                playing = false;
+                continue;
+            }
 
-            inventory.ShowInventory();
-            continue;
-        }
+            if (key == "E")
+            {
+                if (map.HasKey() && !inventory.HasItem("🗝️  Old Key"))
+                    inventory.PickUpItem("🗝️  Old Key");
 
-        if (key is "W" or "A" or "S" or "D")
-        {
-            map.MovePlayer(key);
+                inventory.ShowInventory();
+                continue;
+            }
 
-            if (map.DidLose())
+            if (key is "W" or "A" or "S" or "D")
             {
                 bool hadKeyBefore = map.HasKey();
-
+                
                 map.MovePlayer(key);
 
+                // Check if key was just collected
                 if (!hadKeyBefore && map.HasKey() && !keyCollected)
                 {
                     keyCollected = true;
-                    bool puzzleSolved =ShowFirePuzzle();
+                    bool puzzleSolved = ShowFirePuzzle();
 
-                    if(!puzzleSolved)
+                    if (!puzzleSolved)
                     {
                         ShowGameOver();
                         playing = false;
@@ -134,17 +132,12 @@ public class GameManager
                     playing = false;
                 }
             }
-            else if (map.DidWin())
+            else if (key != "E" && key != "Q")
             {
-                ShowLevelCleared();
-                playing = false;
+                Console.WriteLine("Invalid key. Use W/A/S/D, E or Q.");
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey(true);
             }
-        }
-        else if (key != "E" && key != "Q")
-        {
-            Console.WriteLine("Invalid key. Use W/A/S/D, E or Q.");
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey(true);
         }
 
         return playerWon ? 1 : 0;
@@ -153,6 +146,7 @@ public class GameManager
     private bool ShowFirePuzzle()
     {
         Console.Clear();
+        
         var puzzle = _puzzleSystem.GetPuzzle(PuzzleType.Fire_Easy);
 
         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -196,6 +190,7 @@ public class GameManager
             Console.ResetColor();
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey(true);
+            Console.Clear();
             return true;
         }
         else
@@ -206,10 +201,11 @@ public class GameManager
             Console.ResetColor();
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey(true);
+            Console.Clear();
             return false;
         }
     }
-}
+
     private void ShowGameOver()
     {
         Console.Clear();
