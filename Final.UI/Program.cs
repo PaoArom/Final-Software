@@ -23,6 +23,7 @@ while (inMenu)
     switch (option)
     {
         case "1":
+            gameManager.StartTutorial();
             gameManager.StartGame();
             break;
         case "2":
