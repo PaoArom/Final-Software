@@ -28,46 +28,82 @@ public class GameManager
         }
     }
     public int StartGame()
+{
+    var map       = new MapManager(20, 20, 1, 1);
+    var inventory = new InventoryManager();
+
+    bool playing        = true;
+    DateTime startTime  = DateTime.Now;
+    int totalSeconds    = 60; // un minuto
+    bool keyCollected = false;
+
+    while (playing)
     {
-        var map = new MapManager(20, 20, 1, 1);
-        var inventory = new InventoryManager();
+        // Calcular tiempo restante
+        int secondsLeft = totalSeconds - (int)(DateTime.Now - startTime).TotalSeconds;
 
-        bool playing = true;
-        bool playerWon = false;
-        bool keyCollected = false;
-
-        while (playing)
+        if (secondsLeft <= 0)
         {
-            Console.Clear();
-            map.DisplayMap();
-            Console.WriteLine();
+            ShowGameOver();
+            playing = false;
+            continue;
+        }
 
-            if (map.HasKey())
-                Console.WriteLine("  🗝️  You have the key");
-            else
-                Console.WriteLine("  🔍 Find the key to open the exit");
+        int minsLeft = secondsLeft / 60;
+        int secsLeft = secondsLeft % 60;
 
-            Console.WriteLine("  Use WASD to move  E for Inventory  Q for Menu");
+        Console.Clear();
+        map.DisplayMap();
+        Console.WriteLine();
 
-            var keyInfo = Console.ReadKey(true);
-            string key = keyInfo.Key.ToString().ToUpper();
+        // Timer con color que cambia según el tiempo
+        if (secondsLeft <= 10)
+            Console.ForegroundColor = ConsoleColor.Red;
+        else if (secondsLeft <= 30)
+            Console.ForegroundColor = ConsoleColor.Yellow;
+        else
+            Console.ForegroundColor = ConsoleColor.Green;
 
-            if (key == "Q")
-            {
-                playing = false;
-                continue;
-            }
+        Console.WriteLine($"  ⏱️  Time left: {minsLeft:D2}:{secsLeft:D2}");
+        Console.ResetColor();
 
-            if (key == "E")
-            {
-                if (map.HasKey() && !inventory.HasItem("🗝️  Key"))
-                    inventory.PickUpItem("🗝️  Key");
+        if (map.HasKey())
+            Console.WriteLine("  🗝️  You have the key!");
+        else
+            Console.WriteLine("  🔍 Find the key to open the exit!");
 
-                inventory.ShowInventory();
-                continue;
-            }
+        Console.WriteLine("  Use W/A/S/D to move | E = Inventory | Q = Menu");
 
-            if (key is "W" or "A" or "S" or "D")
+        // Esperar tecla con timeout de 1 segundo
+        if (!Console.KeyAvailable)
+        {
+            System.Threading.Thread.Sleep(100);
+            continue;
+        }
+
+        var keyInfo = Console.ReadKey(true);
+        string key  = keyInfo.Key.ToString().ToUpper();
+
+        if (key == "Q")
+        {
+            playing = false;
+            continue;
+        }
+
+        if (key == "E")
+        {
+            if (map.HasKey() && !inventory.HasItem("🗝️  Old Key"))
+                inventory.PickUpItem("🗝️  Old Key");
+
+            inventory.ShowInventory();
+            continue;
+        }
+
+        if (key is "W" or "A" or "S" or "D")
+        {
+            map.MovePlayer(key);
+
+            if (map.DidLose())
             {
                 bool hadKeyBefore = map.HasKey();
 
@@ -98,12 +134,17 @@ public class GameManager
                     playing = false;
                 }
             }
-            else if (key != "E" && key != "Q")
+            else if (map.DidWin())
             {
-                Console.WriteLine("Invalid key Use WASD, E or Q.");
-                Console.WriteLine("Press any key to continue...");
-                Console.ReadKey(true);
+                ShowLevelCleared();
+                playing = false;
             }
+        }
+        else if (key != "E" && key != "Q")
+        {
+            Console.WriteLine("Invalid key. Use W/A/S/D, E or Q.");
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey(true);
         }
 
         return playerWon ? 1 : 0;
@@ -168,6 +209,7 @@ public class GameManager
             return false;
         }
     }
+}
     private void ShowGameOver()
     {
         Console.Clear();
