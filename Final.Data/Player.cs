@@ -8,6 +8,7 @@ public class Player
     public int CurrentLevel {get; set;}
     public InventoryManager Inventory {get; private set;}
     public List<Medal> EarnedMedals { get; private set; } 
+    public bool TutorialCompleted { get; set; } = false;
     public Player(string username)
     {
         Username = username;
@@ -30,14 +31,21 @@ public class Player
         {
             Username = Username,
             CurrentLevel = CurrentLevel,
-            //InventoryItems
-            //Medals 
+            InventoryItems = Inventory.GetItems(),
+            TutorialCompleted = TutorialCompleted
         };
     }
     
     public void LoadFromSaveData(PlayerSaveData saveData)
     {
         CurrentLevel = saveData.CurrentLevel;
-        // Load inventory items and medals
+        TutorialCompleted = saveData.TutorialCompleted;
+        
+        foreach( var items in saveData.InventoryItems)
+        {
+            Inventory.PickUpItem(items);
+        }
+        
+        //medals
     }
 }

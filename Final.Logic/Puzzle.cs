@@ -2,7 +2,7 @@ namespace Final.Logic;
 
 public class Puzzle
 {
-     public string PuzzlePrompt {get; }
+    public string PuzzlePrompt {get; }
     public string CorrectAnswer {get;}
     public string Hint {get;}
     public int AttemptsAllowed {get; }

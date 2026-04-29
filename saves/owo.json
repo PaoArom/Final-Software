@@ -1,6 +1,7 @@
 {
   "Username": "owo",
-  "CurrentLevel": 0,
+  "CurrentLevel": 1,
   "InventoryItems": [],
-  "Medals": []
+  "Medals": [],
+  "TutorialCompleted": true
 }
