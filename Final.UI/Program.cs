@@ -23,8 +23,21 @@ while (inMenu)
     switch (option)
     {
         case "1":
-            gameManager.StartTutorial();
-            gameManager.StartGame();
+            if (!currentPlayer.TutorialCompleted)
+            {
+                gameManager.StartTutorial();
+                currentPlayer.TutorialCompleted = true;
+                saveSystem.SaveGame(currentPlayer);
+            }
+
+            int levelsCompleted = gameManager.StartGame();
+
+            if(levelsCompleted > currentPlayer.CurrentLevel)
+            {
+                currentPlayer.CurrentLevel = levelsCompleted;
+            }
+
+            saveSystem.SaveGame(currentPlayer);
             break;
         case "2":
             menu.ShowLanguageMenu();

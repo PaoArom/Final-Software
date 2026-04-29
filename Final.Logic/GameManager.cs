@@ -2,6 +2,7 @@
 
 public class GameManager
 {
+    private PuzzleSystem _puzzleSystem = new PuzzleSystem();
     public void StartTutorial()
     {
         var tutorial = new TutorialManager();
@@ -26,12 +27,14 @@ public class GameManager
             Console.ReadKey(true);
         }
     }
-    public void StartGame()
+    public int StartGame()
     {
         var map = new MapManager(20, 20, 1, 1);
         var inventory = new InventoryManager();
 
         bool playing = true;
+        bool playerWon = false;
+        bool keyCollected = false;
 
         while (playing)
         {
@@ -66,7 +69,22 @@ public class GameManager
 
             if (key is "W" or "A" or "S" or "D")
             {
+                bool hadKeyBefore = map.HasKey();
+
                 map.MovePlayer(key);
+
+                if (!hadKeyBefore && map.HasKey() && !keyCollected)
+                {
+                    keyCollected = true;
+                    bool puzzleSolved =ShowFirePuzzle();
+
+                    if(!puzzleSolved)
+                    {
+                        ShowGameOver();
+                        playing = false;
+                        continue;
+                    }
+                }
 
                 if (map.DidLose())
                 {
@@ -76,6 +94,7 @@ public class GameManager
                 else if (map.DidWin())
                 {
                     ShowLevelCleared();
+                    playerWon = true;
                     playing = false;
                 }
             }
@@ -85,6 +104,68 @@ public class GameManager
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey(true);
             }
+        }
+
+        return playerWon ? 1 : 0;
+    }
+
+    private bool ShowFirePuzzle()
+    {
+        Console.Clear();
+        var puzzle = _puzzleSystem.GetPuzzle(PuzzleType.Fire_Easy);
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("╔══════════════════════════════════════════════════════════════╗");
+        Console.WriteLine("║                       🔥 FIRE PUZZLE 🔥                      ║");
+        Console.WriteLine("╚══════════════════════════════════════════════════════════════╝");
+        Console.ResetColor();
+        Console.WriteLine();
+        Console.WriteLine(puzzle.PuzzlePrompt);
+        Console.WriteLine();
+
+        int attempts = 0;
+        bool answeredCorrectly = false;
+
+        while (attempts < puzzle.AttemptsAllowed)
+        {
+            Console.Write($"\nYour answer (A/B/C/D): ");
+            string answer = Console.ReadLine() ?? "";
+
+            if (_puzzleSystem.EvaluateAnswer(puzzle, answer))
+            {
+                answeredCorrectly = true;
+                break;
+            }
+
+            attempts++;
+            int remainingAttempts = puzzle.AttemptsAllowed - attempts;
+
+            if (remainingAttempts > 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Incorrect! Try again. Hint: {puzzle.Hint}");
+                Console.ResetColor();
+            }
+        }
+
+        if (answeredCorrectly)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\n✅ Correct! You can now proceed.");
+            Console.ResetColor();
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey(true);
+            return true;
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"\n❌ The correct answer was: {puzzle.CorrectAnswer}");
+            Console.WriteLine("\n🔥 You failed to answer and got caught by the fire!");
+            Console.ResetColor();
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey(true);
+            return false;
         }
     }
     private void ShowGameOver()
