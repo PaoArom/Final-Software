@@ -26,12 +26,13 @@ public class GameManager
             Console.ReadKey(true);
         }
     }
-    public void StartGame()
+    public int StartGame()
     {
         var map = new MapManager(20, 20, 1, 1);
         var inventory = new InventoryManager();
 
         bool playing = true;
+        bool playerWon = false;
 
         while (playing)
         {
@@ -76,6 +77,7 @@ public class GameManager
                 else if (map.DidWin())
                 {
                     ShowLevelCleared();
+                    playerWon = true;
                     playing = false;
                 }
             }
@@ -86,6 +88,8 @@ public class GameManager
                 Console.ReadKey(true);
             }
         }
+
+        return playerWon ? 1 : 0; 
     }
     private void ShowGameOver()
     {
