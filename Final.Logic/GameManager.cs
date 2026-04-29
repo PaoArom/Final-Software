@@ -26,12 +26,25 @@ public class GameManager
 
             if (key is "W" or "A" or "S" or "D")
             {
-                bool moved = map.MovePlayer(key);
-                if (!moved)
+                map.MovePlayer(key);
+
+                if (map.DidLose())
                 {
-                    System.Console.WriteLine("You can't move there!");
-                    System.Console.WriteLine("Press any key to continue...");
+                    Console.Clear();
+                    map.DisplayMap();
+                    System.Console.WriteLine("\n🔥 You touched fire and died");
+                    System.Console.WriteLine("Press any key to return to the menu...");
                     Console.ReadKey(true);
+                    playing = false;
+                }
+                else if (map.DidWin())
+                {
+                    Console.Clear();
+                    map.DisplayMap();
+                    System.Console.WriteLine("\n🚪 You found the exit! You win 🎉");
+                    System.Console.WriteLine("Press any key to return to the menu...");
+                    Console.ReadKey(true);
+                    playing = false;
                 }
             }
             else
