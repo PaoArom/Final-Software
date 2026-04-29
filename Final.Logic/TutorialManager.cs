@@ -136,26 +136,27 @@ public class TutorialManager
 
         return new string[]
         {
-            "╔══════════════════════════════════════╗",
-            "║           HOW TO PLAY                ║",
-            "╠══════════════════════════════════════╣",
-            "║                                      ║",
-            "║  🕹️  Move around with W/A/S/D         ║",
-            "║                                      ║",
-            "║  🗝️  Grab the key to unlock the exit  ║",
-            "║                                      ║",
-            "║  🔥 Don't touch fire — instant death! ║",
-            "║                                      ║",
-            "║  🚪 Reach the door to finish!         ║",
-            "║                                      ║",
-            "║  🎒 Press E to open your inventory   ║",
-            "║                                      ║",
+            "                                          ",
+            " ╔══════════════════════════════════════╗",
+            " ║           HOW TO PLAY                ║",
+            " ╠══════════════════════════════════════╣",
+            " ║                                      ║",
+            " ║  🕹️  Move around with W/A/S/D        ║",
+            " ║                                      ║",
+            " ║  🗝️  Grab the key to unlock the exit ║",
+            " ║                                      ║",
+            " ║  🔥 Don't touch fire — instant death!║",
+            " ║                                      ║",
+            " ║  🚪 Reach the door to finish!        ║",
+            " ║                                      ║",
+            " ║  🎒 Press E to open your inventory   ║",
+            " ║                                      ║",
             playerHasKey
-                ? "║  ✅ You have the key! Find the exit! ║"
-                : "║  🔍 Find the key first!              ║",
-            "║                                      ║",
-            "║  Press Q to return to the menu       ║",
-            "╚══════════════════════════════════════╝",
+                ? " ║  ✅ You have the key! Find the exit! ║"
+                : " ║  🔍 Find the key first!              ║",
+            " ║                                      ║",
+            " ║  Press Q to return to the menu       ║",
+            " ╚══════════════════════════════════════╝",
         };
     }
 }
