@@ -10,9 +10,9 @@ public class PuzzleSystem
         {
             {
                 PuzzleType.Fire_Easy, new Puzzle(
-                    "Prompt", 
-                    "Answer", 
-                    "Hint", 
+                    "During a fire, smoke rises. To avoid inhaling toxic smoke, you should:\n\nA) Stand up and run to the exit\nB) Stay low and crawl to the exit\nC) Jump out the window immediately\nD) Hide under a table",
+                    "B", 
+                    "Smoke rises, so stay low near the floor!", 
                     3
                 )
             },
